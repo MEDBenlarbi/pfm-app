@@ -3,6 +3,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { open } from "sqlite";
 import sqlite3 from "sqlite3";
+import { AppError } from "../utils";
 
 /**
  *
@@ -13,7 +14,7 @@ const sqliteConnector = async (app, opts) => {
   const dir = dirname(fileURLToPath(import.meta.url));
   try {
     if (app.sqlite) {
-      throw new Error("sqlite has been already registered");
+      throw new AppError(500, "DataBase has been already registered");
     }
 
     const sqlite = await open({
