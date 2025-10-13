@@ -1,0 +1,1 @@
+This is my first application , it's mainly about managing your personal finances and expenses.

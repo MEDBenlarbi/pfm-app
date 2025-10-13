@@ -1,0 +1,20 @@
+
+# Dependencies
+node_modules/
+
+# builds
+dist/
+build/
+
+# environment variables files
+.env
+.env.test
+.env.production
+
+## vscode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
