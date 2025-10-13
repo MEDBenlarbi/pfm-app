@@ -17,11 +17,11 @@ const sqliteConnector = async (app, opts) => {
     }
 
     const sqlite = await open({
-      filename: opts.dbFile ?? "./db.sqlite",
+      filename: opts.dbFile ?? "./sqlite.db",
       driver: sqlite3.Database,
     });
 
-    await sqlite.migrate({ migrationPath: resolve(dir, "./migration") });
+    await sqlite.migrate({ migrationsPath: resolve(dir, "./migrations") });
 
     return app.decorate("sqlite", sqlite);
   } catch (err) {

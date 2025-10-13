@@ -3,59 +3,61 @@
 --------------------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS homes (
-  id UUID PRIMARY KEY,
-  name TINYTEXT UNIQUE NOT NULL,
+  id TEXT PRIMARY KEY,
+  name TEXT UNIQUE NOT NULL,
   description TEXT,
-  createdAt TIMESTAMP NOT NULL,
-  updatedAT TIMESTAMP NOT NULL
-)
+  createdAt INTEGER NOT NULL,
+  updatedAT INTEGER NOT NULL
+);
 
 CREATE TABLE IF NOT EXISTS users (
-  id UUID PRIMARY KEY,
-  fullName TINYTEXT NOT NULL,
-  email UNIQUE NOT NULL,
-  createdAt TIMESTAMP NOT NULL,
-  updatedAT TIMESTAMP NOT NULL
-)
+  id TEXT PRIMARY KEY,
+  fullName TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  createdAt INTEGER NOT NULL,
+  updatedAT INTEGER NOT NULL
+);
 
 CREATE TABLE IF NOT EXISTS homeUsers (
-  userId UUID NOT NULL,
-  homeId UUID NOT NULL,
-  createdAt TIMESTAMP NOT NULL,
-  FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE,
-  FOREIGN KEY (homeId) REFERENCES homes(homeId) ON DELETE CASCADE
-)
-
+  userId TEXT NOT NULL,
+  homeId TEXT NOT NULL,
+  createdAt INT NOT NULL,
+  PRIMARY KEY(userId, homeId),
+  FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY(homeId) REFERENCES homes(id) ON DELETE CASCADE
+);
 
 CREATE TABLE IF NOT EXISTS categories (
-  id UUID PRIMARY KEY,
-  name TINYTEXT UNIQUE NOT NULL,
+  id TEXT PRIMARY KEY,
+  name TEXT UNIQUE NOT NULL,
   description TEXT,
-  createdAt TIMESTAMP NOT NULL,
-  updatedAT TIMESTAMP NOT NULL
-)
+  createdAt INTEGER NOT NULL,
+  updatedAT INTEGER NOT NULL
+);
 
 CREATE TABLE IF NOT EXISTS ledgers (
-  id UUID PRIMARY KEY,
-  name TINYTEXT UNIQUE NOT NULL,
+  id TEXT PRIMARY KEY,
+  name TEXT UNIQUE NOT NULL,
   description TEXT,
-  amount DEC(10, 2),
-  date TIMESTAMP NOT NULL,
-  type TINYTEXT NOT NULL CHECK(type IN ('CREDIT', 'DEBIT')),
-  createdAt TIMESTAMP NOT NULL,
-  updatedAT TIMESTAMP NOT NULL,
-  userId UUID NOT NULL,
-  homeId UUID NOT NULL,
-  FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE,
-  FOREIGN KEY (homeId) REFERENCES homes(homeId) ON DELETE CASCADE,
-  FOREIGN KEY (categoryId) REFERENCES categories(categoryId) ON DELETE CASCADE
-)
+  amount REAL NOT NULL,
+  date INTEGER NOT NULL,
+  type TEXT CHECK(type IN ('CREDIT', 'DEBIT')) NOT NULL,
+  createdAt INTEGER NOT NULL,
+  updatedAT INTEGER NOT NULL,
+  userId TEXT NOT NULL,
+  homeId TEXT NOT NULL,
+  categoryId TEXT NOT NULL,
+  FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY(homeId) REFERENCES homes(id) ON DELETE CASCADE
+  FOREIGN KEY(categoryId) REFERENCES categories(id) ON DELETE CASCADE
+);
 
 --------------------------------------------------------------------------------
 -- Down
---------------------------------------------------------------------------------_
+--------------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS homes;
-DROP TABLE IF EXISTS ledgers;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS homeUsers;
 DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS ledgers;
