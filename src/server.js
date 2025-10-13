@@ -1,8 +1,12 @@
 import Fastify from "fastify";
+import sqlite from "./database/sqlite.js";
 
 const server = Fastify({
   logger: true,
 });
+
+// Database
+server.register(sqlite);
 
 server.setErrorHandler((err, req, res) => {
   if (err instanceof Fastify.errorCodes.FST_ERR_BAD_STATUS_CODE) {
