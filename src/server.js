@@ -1,9 +1,9 @@
-import fastifySwagger from "@fastify/swagger";
-import fastifySwaggerUi from "@fastify/swagger-ui";
-import Fastify from "fastify";
-import sqlite from "./plugins/sqlite.js";
-import uuid from "./plugins/uuid.js";
-import homesRoutes from "./routes/homes.route.js";
+import fastifySwagger from '@fastify/swagger';
+import fastifySwaggerUi from '@fastify/swagger-ui';
+import Fastify from 'fastify';
+import sqlite from './plugins/sqlite.js';
+import uuid from './plugins/uuid.js';
+import homesRoutes from './routes/homes.route.js';
 
 const server = Fastify({
   logger: true,
@@ -12,53 +12,51 @@ const server = Fastify({
 //documentation
 server.register(fastifySwagger, {
   openapi: {
-    openapi: "3.0.0",
+    openapi: '3.0.0',
     info: {
-      title: "Personal Finance Manager",
-      description: "Testing the Fastify swagger API",
-      version: "0.1.0",
+      title: 'Personal Finance Manager',
+      description: 'Testing the Fastify swagger API',
+      version: '0.1.0',
     },
     servers: [
       {
-        url: "http://localhost:3000",
-        description: "Development server",
+        url: 'http://localhost:3000',
+        description: 'Development server',
+      },
+      {
+        url: 'http://127.0.0.1:3000',
+        description: 'Development server',
       },
     ],
     tags: [],
     components: {
       securitySchemes: {
         apiKey: {
-          type: "apiKey",
-          name: "apiKey",
-          in: "header",
+          type: 'apiKey',
+          name: 'apiKey',
+          in: 'header',
         },
       },
     },
     externalDocs: {
-      url: "https://swagger.io",
-      description: "Find more info here",
+      url: 'https://swagger.io',
+      description: 'Find more info here',
     },
   },
 });
 server.register(fastifySwaggerUi, {
-  routePrefix: "/",
+  routePrefix: '/',
   uiConfig: {
-    docExpansion: "full",
+    docExpansion: 'full',
     deepLinking: false,
   },
   uiHooks: {
-    onRequest: function (request, reply, next) {
-      next();
-    },
-    preHandler: function (request, reply, next) {
-      next();
-    },
+    onRequest: (request, reply, next) => next(),
+    preHandler: (request, reply, next) => next(),
   },
   staticCSP: true,
   transformStaticCSP: (header) => header,
-  transformSpecification: (swaggerObject, request, reply) => {
-    return swaggerObject;
-  },
+  transformSpecification: (swaggerObject, request, reply) => swaggerObject,
   transformSpecificationClone: true,
 });
 
@@ -69,7 +67,7 @@ server.register(uuid);
 server.setErrorHandler((err, req, res) => {
   if (err instanceof Fastify.errorCodes.FST_ERR_BAD_STATUS_CODE) {
     this.log.error(err);
-    res.status(500).send({ message: "internal server error" });
+    res.status(500).send({ message: 'internal server error' });
   } else {
     res.send(err);
   }
@@ -79,7 +77,7 @@ server.register(homesRoutes);
 
 const start = async () => {
   try {
-    await server.listen({ port: 3000 });
+    await server.listen({ host: 'localhost', port: 3000 });
   } catch (err) {
     server.log.error(err);
     process.exit(1);
