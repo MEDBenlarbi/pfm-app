@@ -13,6 +13,12 @@ export const getHomes = async (req, db) => {
     query += " AND userId = ?";
     params.push(req.query.userId);
   }
+
+  if (req.query.name) {
+    query += " AND name = ?";
+    params.push(req.query.name);
+  }
+
   try {
     const resp = await db.all(query, params);
     return resp;
@@ -20,17 +26,24 @@ export const getHomes = async (req, db) => {
     throw err;
   }
 };
+export const getHome = async (req, db) => {
+  let query = "SELECT * FROM homes WHERE id = ?";
 
-export const createHome = async (req, db) => {
+  try {
+    return await db.all(query, [req.params.id]);
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const createHome = async (req, app) => {
   const { name, description } = req.body;
 
-  if (!name) {
-    throw new Error("Name is required");
-  }
+  const id = app.uuid();
   const now = Date.now();
   const query =
-    "INSERT INTO homes (name, description, createdAt, updatedAt) VALUES (?, ?, ?, ?)";
-  const result = await db.run(query, [name, description, now, now]);
+    "INSERT INTO homes (id, name, description, createdAt, updatedAt) VALUES (?,?, ?, ?, ?)";
+  const result = await app.db.run(query, [id, name, description, now, now]);
 
   return {
     id: result.lastID,
@@ -44,10 +57,6 @@ export const createHome = async (req, db) => {
 export const updateHome = async (req, db) => {
   const { id } = req.params;
   const { name, description } = req.body;
-
-  if (!id) {
-    throw new Error("ID is required");
-  }
 
   const now = Date.now();
   const query = `
@@ -63,7 +72,6 @@ export const updateHome = async (req, db) => {
 
 export const deleteHome = async (req, db) => {
   const { id } = req.params;
-  if (!id) throw new Error("ID is required");
 
   const result = await db.run("DELETE FROM homes WHERE id = ?", [id]);
   return { deleted: result.changes ? true : false };
