@@ -3,7 +3,7 @@
 --------------------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS homes (
-    id INTEGER PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     name TEXT UNIQUE NOT NULL,
     description TEXT,
     createdAt INTEGER NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS homes (
 );
 
 CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     fullName TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     createdAt INTEGER NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS homeUsers (
 );
 
 CREATE TABLE IF NOT EXISTS categories (
-    id INTEGER PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     name TEXT UNIQUE NOT NULL,
     description TEXT,
     createdAt INTEGER NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS categories (
 );
 
 CREATE TABLE IF NOT EXISTS ledgers (
-    id INTEGER PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     name TEXT UNIQUE NOT NULL,
     description TEXT,
     amount REAL NOT NULL,

@@ -26,7 +26,6 @@ const homesRoutes = (app) => {
     type: "object",
     properties: {
       name: { type: "string" },
-      email: { type: "number" },
       description: { type: "string" },
     },
   };
@@ -41,7 +40,7 @@ const homesRoutes = (app) => {
         },
       },
     },
-    async (req) => await HomeHandlers.getHomes(req, app.db)
+    async (req) => await HomeHandlers.getHomes(req, app.sqlite)
   );
 
   app.get(
@@ -54,7 +53,7 @@ const homesRoutes = (app) => {
         },
       },
     },
-    async (req) => await HomeHandlers.getHome(req, app.db)
+    async (req) => await HomeHandlers.getHome(req, app.sqlite)
   );
   app.post(
     "/homes",
@@ -79,7 +78,7 @@ const homesRoutes = (app) => {
         },
       },
     },
-    async (req) => await HomeHandlers.updateHome(req, app.db)
+    async (req) => await HomeHandlers.updateHome(req, app.sqlite)
   );
   app.delete(
     "/homes/:id",
@@ -88,7 +87,7 @@ const homesRoutes = (app) => {
         params: idParam,
       },
     },
-    async (req) => await HomeHandlers.deleteHome(req, app.db)
+    async (req) => await HomeHandlers.deleteHome(req, app.sqlite)
   );
 };
 export default homesRoutes;

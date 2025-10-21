@@ -1,9 +1,65 @@
+import fastifySwagger from "@fastify/swagger";
+import fastifySwaggerUi from "@fastify/swagger-ui";
 import Fastify from "fastify";
 import sqlite from "./plugins/sqlite.js";
 import uuid from "./plugins/uuid.js";
+import homesRoutes from "./routes/homes.route.js";
 
 const server = Fastify({
   logger: true,
+});
+
+//documentation
+server.register(fastifySwagger, {
+  openapi: {
+    openapi: "3.0.0",
+    info: {
+      title: "Personal Finance Manager",
+      description: "Testing the Fastify swagger API",
+      version: "0.1.0",
+    },
+    servers: [
+      {
+        url: "http://localhost:3000",
+        description: "Development server",
+      },
+    ],
+    tags: [],
+    components: {
+      securitySchemes: {
+        apiKey: {
+          type: "apiKey",
+          name: "apiKey",
+          in: "header",
+        },
+      },
+    },
+    externalDocs: {
+      url: "https://swagger.io",
+      description: "Find more info here",
+    },
+  },
+});
+server.register(fastifySwaggerUi, {
+  routePrefix: "/",
+  uiConfig: {
+    docExpansion: "full",
+    deepLinking: false,
+  },
+  uiHooks: {
+    onRequest: function (request, reply, next) {
+      next();
+    },
+    preHandler: function (request, reply, next) {
+      next();
+    },
+  },
+  staticCSP: true,
+  transformStaticCSP: (header) => header,
+  transformSpecification: (swaggerObject, request, reply) => {
+    return swaggerObject;
+  },
+  transformSpecificationClone: true,
 });
 
 // Database
@@ -18,6 +74,8 @@ server.setErrorHandler((err, req, res) => {
     res.send(err);
   }
 });
+
+server.register(homesRoutes);
 
 const start = async () => {
   try {

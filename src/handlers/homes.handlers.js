@@ -30,28 +30,29 @@ export const getHome = async (req, db) => {
   let query = "SELECT * FROM homes WHERE id = ?";
 
   try {
-    return await db.all(query, [req.params.id]);
+    return await db.get(query, [req.params.id]);
   } catch (err) {
     throw err;
   }
 };
 
 export const createHome = async (req, app) => {
-  const { name, description } = req.body;
+  try {
+    let query =
+      "INSERT INTO homes (id, name, description, createdAt, updatedAt) VALUES (?,?, ?, ?, ?)";
+    const result = await app.sqlite.run(query, [
+      app.uuid(),
+      req.body.name,
+      req.body.description,
+      Date.now(),
+      Date.now(),
+    ]);
+    query = "SELECT * FROM homes WHERE id = ?";
 
-  const id = app.uuid();
-  const now = Date.now();
-  const query =
-    "INSERT INTO homes (id, name, description, createdAt, updatedAt) VALUES (?,?, ?, ?, ?)";
-  const result = await app.db.run(query, [id, name, description, now, now]);
-
-  return {
-    id: result.lastID,
-    name,
-    description,
-    createdAt: now,
-    updatedAt: now,
-  };
+    return await app.sqlite.get(query, [result.lastID]);
+  } catch (err) {
+    throw err;
+  }
 };
 
 export const updateHome = async (req, db) => {
