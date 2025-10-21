@@ -1,5 +1,6 @@
 import Fastify from "fastify";
-import sqlite from "./database/sqlite.js";
+import sqlite from "./plugins/sqlite.js";
+import uuid from "./plugins/uuid.js";
 
 const server = Fastify({
   logger: true,
@@ -7,6 +8,7 @@ const server = Fastify({
 
 // Database
 server.register(sqlite);
+server.register(uuid);
 
 server.setErrorHandler((err, req, res) => {
   if (err instanceof Fastify.errorCodes.FST_ERR_BAD_STATUS_CODE) {

@@ -3,7 +3,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { open } from "sqlite";
 import sqlite3 from "sqlite3";
-import { AppError } from "../utils";
+import { AppError } from "../utils.js";
 
 /**
  *
@@ -18,11 +18,13 @@ const sqliteConnector = async (app, opts) => {
     }
 
     const sqlite = await open({
-      filename: opts.dbFile ?? "./sqlite.db",
+      filename: opts.dbFile ?? "./database/sqlite.db",
       driver: sqlite3.Database,
     });
 
-    await sqlite.migrate({ migrationsPath: resolve(dir, "./migrations") });
+    await sqlite.migrate({
+      migrationsPath: resolve("./database/migrations"),
+    });
 
     return app.decorate("sqlite", sqlite);
   } catch (err) {
