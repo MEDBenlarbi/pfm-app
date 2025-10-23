@@ -103,8 +103,12 @@ export const updateHome = async (req, db) => {
  * @param {import ('sqlite').Database} db
  */
 export const deleteHome = async (req, db) => {
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-  const result = await db.run('DELETE FROM homes WHERE id = ?', [id]);
-  return { deleted: result.changes ? true : false };
+    const result = await db.run('DELETE FROM homes WHERE id = ?', [id]);
+    return { deleted: result.changes ? true : false };
+  } catch (err) {
+    throw err;
+  }
 };
