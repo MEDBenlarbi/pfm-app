@@ -3,7 +3,10 @@ import fastifySwaggerUi from '@fastify/swagger-ui';
 import Fastify from 'fastify';
 import sqlite from './plugins/sqlite.js';
 import uuid from './plugins/uuid.js';
+import categoriesRoutes from './routes/categories.route.js';
 import homesRoutes from './routes/homes.route.js';
+import ledgersRoutes from './routes/ledgers.route.js';
+import usersRoutes from './routes/users.route.js';
 
 const server = Fastify({
   logger: true,
@@ -74,6 +77,9 @@ server.setErrorHandler((err, req, res) => {
 });
 
 server.register(homesRoutes);
+server.register(usersRoutes);
+server.register(categoriesRoutes);
+server.register(ledgersRoutes);
 
 const start = async () => {
   try {
