@@ -31,12 +31,15 @@ const usersRoutes = (app) => {
     },
   };
 
+  const tags = ['users'];
+
   app.get(
     '/users',
     {
       schema: {
         querystring: queryParams,
         response: { 200: { type: 'array', items: userResp } },
+        tags,
       },
     },
     async (req) => await UserHandlers.getUsers(req, app.sqlite)
@@ -48,6 +51,7 @@ const usersRoutes = (app) => {
       schema: {
         body: { ...userBody, required: ['fullName', 'email', 'homeId'] },
         response: { 200: userResp },
+        tags,
       },
     },
     async (req) => await UserHandlers.createUser(req, app)
@@ -55,7 +59,9 @@ const usersRoutes = (app) => {
 
   app.get(
     '/users/:id',
-    { schema: { params: idParam, response: { 200: userResp } } },
+    {
+      schema: { params: idParam, response: { 200: userResp }, tags },
+    },
     async (req) => await UserHandlers.getUser(req, app.sqlite)
   );
 
@@ -69,6 +75,7 @@ const usersRoutes = (app) => {
           anyOf: [{ required: ['fullName'] }, { required: ['email'] }],
         },
         response: { 200: userResp },
+        tags,
       },
     },
     async (req) => await UserHandlers.updateUser(req, app.sqlite)
@@ -76,7 +83,7 @@ const usersRoutes = (app) => {
 
   app.delete(
     '/users/:id',
-    { schema: { params: idParam } },
+    { schema: { params: idParam, tags } },
     async (req) => await UserHandlers.deleteUser(req, app.sqlite)
   );
 };

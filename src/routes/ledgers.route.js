@@ -45,12 +45,15 @@ const ledgersRoutes = (app) => {
     },
   };
 
+  const tags = ['ledgers'];
+
   app.get(
     '/ledgers',
     {
       schema: {
         querystring: queryParams,
         response: { 200: { type: 'array', items: ledgerResp } },
+        tags,
       },
     },
     async (req) => await LedgerHandlers.getLedgers(req, app.sqlite)
@@ -73,6 +76,7 @@ const ledgersRoutes = (app) => {
           ],
         },
         response: { 200: ledgerResp },
+        tags,
       },
     },
     async (req) => await LedgerHandlers.createLedger(req, app)
@@ -80,7 +84,13 @@ const ledgersRoutes = (app) => {
 
   app.get(
     '/ledgers/:id',
-    { schema: { params: idParam, response: { 200: ledgerResp } } },
+    {
+      schema: {
+        params: idParam,
+        response: { 200: ledgerResp },
+        tags,
+      },
+    },
     async (req) => await LedgerHandlers.getLedger(req, app.sqlite)
   );
 
@@ -98,6 +108,7 @@ const ledgersRoutes = (app) => {
           ],
         },
         response: { 200: ledgerResp },
+        tags,
       },
     },
     async (req) => await LedgerHandlers.updateLedger(req, app.sqlite)
@@ -105,7 +116,7 @@ const ledgersRoutes = (app) => {
 
   app.delete(
     '/ledgers/:id',
-    { schema: { params: idParam } },
+    { schema: { params: idParam, tags } },
     async (req) => await LedgerHandlers.deleteLedger(req, app.sqlite)
   );
 };

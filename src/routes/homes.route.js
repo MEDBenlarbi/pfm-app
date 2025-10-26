@@ -30,6 +30,8 @@ const homesRoutes = (app) => {
     },
   };
 
+  const tags = ['homes'];
+
   app.get(
     '/homes',
     {
@@ -38,6 +40,7 @@ const homesRoutes = (app) => {
         response: {
           200: { type: 'array', items: homeResp },
         },
+        tags,
       },
     },
     async (req) => await HomeHandlers.getHomes(req, app.sqlite)
@@ -51,6 +54,7 @@ const homesRoutes = (app) => {
         response: {
           200: homeResp,
         },
+        tags,
       },
     },
     async (req) => await HomeHandlers.createHome(req, app)
@@ -64,6 +68,7 @@ const homesRoutes = (app) => {
         response: {
           200: homeResp,
         },
+        tags,
       },
     },
     async (req) => await HomeHandlers.getHome(req, app.sqlite)
@@ -81,6 +86,7 @@ const homesRoutes = (app) => {
         response: {
           200: homeResp,
         },
+        tags,
       },
     },
     async (req) => await HomeHandlers.updateHome(req, app.sqlite)
@@ -91,6 +97,7 @@ const homesRoutes = (app) => {
     {
       schema: {
         params: idParam,
+        tags,
       },
     },
     async (req) => await HomeHandlers.deleteHome(req, app.sqlite)

@@ -29,12 +29,15 @@ const categoriesRoutes = (app) => {
     },
   };
 
+  const tags = ['ledgers'];
+
   app.get(
     '/categories',
     {
       schema: {
         querystring: queryParams,
         response: { 200: { type: 'array', items: categoryResp } },
+        tags,
       },
     },
     async (req) => await CategoryHandlers.getCategories(req, app.sqlite)
@@ -46,6 +49,7 @@ const categoriesRoutes = (app) => {
       schema: {
         body: { ...categoryBody, required: ['name'] },
         response: { 200: categoryResp },
+        tags,
       },
     },
     async (req) => await CategoryHandlers.createCategory(req, app)
@@ -53,7 +57,7 @@ const categoriesRoutes = (app) => {
 
   app.get(
     '/categories/:id',
-    { schema: { params: idParam, response: { 200: categoryResp } } },
+    { schema: { params: idParam, response: { 200: categoryResp }, tags } },
     async (req) => await CategoryHandlers.getCategory(req, app.sqlite)
   );
 
@@ -67,6 +71,7 @@ const categoriesRoutes = (app) => {
           anyOf: [{ required: ['name'] }, { required: ['description'] }],
         },
         response: { 200: categoryResp },
+        tags,
       },
     },
     async (req) => await CategoryHandlers.updateCategory(req, app.sqlite)
@@ -74,7 +79,8 @@ const categoriesRoutes = (app) => {
 
   app.delete(
     '/categories/:id',
-    { schema: { params: idParam } },
+    { schema: { params: idParam, tags } },
+
     async (req) => await CategoryHandlers.deleteCategory(req, app.sqlite)
   );
 };

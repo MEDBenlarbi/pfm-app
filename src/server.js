@@ -7,61 +7,15 @@ import categoriesRoutes from './routes/categories.route.js';
 import homesRoutes from './routes/homes.route.js';
 import ledgersRoutes from './routes/ledgers.route.js';
 import usersRoutes from './routes/users.route.js';
+import { swaggerConfig, swaggerUiConfig } from './utils.js';
 
 const server = Fastify({
   logger: true,
 });
 
 //documentation
-server.register(fastifySwagger, {
-  openapi: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Personal Finance Manager',
-      description: 'Testing the Fastify swagger API',
-      version: '0.1.0',
-    },
-    servers: [
-      {
-        url: 'http://localhost:3000',
-        description: 'Development server',
-      },
-      {
-        url: 'http://127.0.0.1:3000',
-        description: 'Development server',
-      },
-    ],
-    tags: [],
-    components: {
-      securitySchemes: {
-        apiKey: {
-          type: 'apiKey',
-          name: 'apiKey',
-          in: 'header',
-        },
-      },
-    },
-    externalDocs: {
-      url: 'https://swagger.io',
-      description: 'Find more info here',
-    },
-  },
-});
-server.register(fastifySwaggerUi, {
-  routePrefix: '/',
-  uiConfig: {
-    docExpansion: 'full',
-    deepLinking: false,
-  },
-  uiHooks: {
-    onRequest: (request, reply, next) => next(),
-    preHandler: (request, reply, next) => next(),
-  },
-  staticCSP: true,
-  transformStaticCSP: (header) => header,
-  transformSpecification: (swaggerObject, request, reply) => swaggerObject,
-  transformSpecificationClone: true,
-});
+server.register(fastifySwagger, swaggerConfig);
+server.register(fastifySwaggerUi, swaggerUiConfig);
 
 // Database
 server.register(sqlite);
@@ -78,8 +32,8 @@ server.setErrorHandler((err, req, res) => {
 
 server.register(homesRoutes);
 server.register(usersRoutes);
-server.register(categoriesRoutes);
 server.register(ledgersRoutes);
+server.register(categoriesRoutes);
 
 const start = async () => {
   try {
