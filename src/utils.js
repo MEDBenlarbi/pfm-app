@@ -62,3 +62,45 @@ export const swaggerUiConfig = {
   transformSpecification: (swaggerObject, request, reply) => swaggerObject,
   transformSpecificationClone: true,
 };
+export const fetchGoogleUser = async (accessToken) => {
+  const response = await fetch(
+    'https://www.googleapis.com/oauth2/v2/userinfo',
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }
+  );
+
+  return await response.json();
+};
+
+export const findOrCreateUser = async (server, googleUser) => {
+  const { email, name } = googleUser;
+
+  let user = await server.sqlite.get('SELECT * FROM users WHERE email = ?', [
+    email,
+  ]);
+
+  if (!user) {
+    const id = server.uuid();
+    const timeStamp = Date.now();
+
+    await server.sqlite.run(
+      'INSERT INTO users (id, fullName, email, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)',
+      [id, name, email, timeStamp, timeStamp]
+    );
+
+    user = await server.sqlite.get('SELECT * FROM users WHERE email = ?', [
+      email,
+    ]);
+  }
+
+  return user;
+};
+
+export const generateJwt = (server, user) => {
+  return server.jwt.sign({
+    userId: user.id,
+    email: user.email,
+    fullName: user.fullName,
+  });
+};

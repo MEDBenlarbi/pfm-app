@@ -35,10 +35,11 @@ export const getLedgers = async (req, db) => {
  * @param {import ('fastify').FastifyInstance} app
  */
 export const createLedger = async (req, app) => {
-  const { name, description, amount, date, type, userId, homeId, categoryId } =
+  const { name, description, amount, date, type, homeId, categoryId } =
     req.body;
   const uuid = app.uuid();
   const timeStamp = Date.now();
+  const userId = req.body.userId;
 
   try {
     const stmt = await app.sqlite.prepare(

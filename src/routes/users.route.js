@@ -1,5 +1,5 @@
 import * as UserHandlers from '../handlers/users.handlers.js';
-import { idParam, idProp } from '../utils.js';
+import { AppError, idParam, idProp } from '../utils.js';
 
 /**
  * @param {import('fastify').FastifyInstance} app
@@ -36,6 +36,7 @@ const usersRoutes = (app) => {
   app.get(
     '/users',
     {
+      preHandler: [app.authenticate],
       schema: {
         querystring: queryParams,
         response: { 200: { type: 'array', items: userResp } },
@@ -60,14 +61,21 @@ const usersRoutes = (app) => {
   app.get(
     '/users/:id',
     {
+      preHandler: [app.authenticate],
       schema: { params: idParam, response: { 200: userResp }, tags },
     },
-    async (req) => await UserHandlers.getUser(req, app.sqlite)
+    async (req) => {
+      if (req.params.id !== req.user.userId) {
+        throw new AppError(403, 'Cannot access other users data');
+      }
+      return await UserHandlers.getUser(req, app.sqlite);
+    }
   );
 
   app.put(
     '/users/:id',
     {
+      preHandler: [app.authenticate],
       schema: {
         params: idParam,
         body: {
@@ -78,13 +86,44 @@ const usersRoutes = (app) => {
         tags,
       },
     },
-    async (req) => await UserHandlers.updateUser(req, app.sqlite)
+    async (req) => {
+      if (req.params.id !== req.user.userId) {
+        throw new AppError(403, 'Cannot update other users');
+      }
+      return await UserHandlers.updateUser(req, app.sqlite);
+    }
   );
 
   app.delete(
     '/users/:id',
-    { schema: { params: idParam, tags } },
-    async (req) => await UserHandlers.deleteUser(req, app.sqlite)
+    {
+      preHandler: [app.authenticate],
+      schema: { params: idParam, tags },
+    },
+    async (req) => {
+      if (req.params.id !== req.user.userId) {
+        throw new AppError(403, 'Cannot delete other users');
+      }
+      return await UserHandlers.deleteUser(req, app.sqlite);
+    }
+  );
+
+  app.get(
+    '/me',
+    {
+      preHandler: [app.authenticate],
+      schema: {
+        response: { 200: userResp },
+        tags: ['users'],
+      },
+    },
+    async (req) => {
+      return await UserHandlers.getUser(
+        { params: { id: req.user.userId } },
+        app.sqlite
+      );
+    }
   );
 };
+
 export default usersRoutes;

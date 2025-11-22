@@ -15,7 +15,6 @@ const homesRoutes = (app) => {
     properties: {
       ...idProp,
       name: { type: 'string' },
-      email: { type: 'string' },
       description: { type: 'string' },
       createdAt: { type: 'number' },
       updatedAt: { type: 'number' },
@@ -35,6 +34,7 @@ const homesRoutes = (app) => {
   app.get(
     '/homes',
     {
+      preHandler: [app.authenticate],
       schema: {
         querystring: queryParams,
         response: {
@@ -43,12 +43,16 @@ const homesRoutes = (app) => {
         tags,
       },
     },
-    async (req) => await HomeHandlers.getHomes(req, app.sqlite)
+    async (req) => {
+      req.query.userId = req.user.userId;
+      return await HomeHandlers.getHomes(req, app.sqlite);
+    }
   );
 
   app.post(
     '/homes',
     {
+      preHandler: [app.authenticate],
       schema: {
         body: { ...homeBody, required: ['name'] },
         response: {
@@ -63,6 +67,7 @@ const homesRoutes = (app) => {
   app.get(
     '/homes/:id',
     {
+      preHandler: [app.authenticate],
       schema: {
         params: idParam,
         response: {
@@ -71,12 +76,17 @@ const homesRoutes = (app) => {
         tags,
       },
     },
-    async (req) => await HomeHandlers.getHome(req, app.sqlite)
+    async (req) => {
+      const home = await HomeHandlers.getHome(req, app.sqlite);
+
+      return home;
+    }
   );
 
   app.put(
     '/homes/:id',
     {
+      preHandler: [app.authenticate],
       schema: {
         params: idParam,
         body: {
@@ -89,18 +99,23 @@ const homesRoutes = (app) => {
         tags,
       },
     },
-    async (req) => await HomeHandlers.updateHome(req, app.sqlite)
+    async (req) => {
+      return await HomeHandlers.updateHome(req, app.sqlite);
+    }
   );
 
   app.delete(
     '/homes/:id',
     {
+      preHandler: [app.authenticate],
       schema: {
         params: idParam,
         tags,
       },
     },
-    async (req) => await HomeHandlers.deleteHome(req, app.sqlite)
+    async (req) => {
+      return await HomeHandlers.deleteHome(req, app.sqlite);
+    }
   );
 };
 export default homesRoutes;

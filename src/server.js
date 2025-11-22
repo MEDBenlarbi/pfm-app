@@ -1,3 +1,4 @@
+import fastifyJwt from '@fastify/jwt';
 import fastifyOauth2 from '@fastify/oauth2';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui';
@@ -5,6 +6,7 @@ import 'dotenv/config';
 import Fastify from 'fastify';
 import sqlite from './plugins/sqlite.js';
 import uuid from './plugins/uuid.js';
+import authRoutes from './routes/auth.route.js';
 import categoriesRoutes from './routes/categories.route.js';
 import homesRoutes from './routes/homes.route.js';
 import ledgersRoutes from './routes/ledgers.route.js';
@@ -15,11 +17,35 @@ const server = Fastify({
   logger: true,
 });
 
-//documentation
+// Register plugins
+server.register(sqlite);
+server.register(uuid);
+
+// JWT setup
+server.register(fastifyJwt, {
+  secret: process.env.JWT_SECRET,
+  sign: {
+    expiresIn: '7d',
+  },
+});
+
+// Authentication decorator
+server.decorate('authenticate', async (req, reply) => {
+  try {
+    await req.jwtVerify();
+  } catch (err) {
+    reply.status(401).send({
+      success: false,
+      error: 'Invalid or expired token',
+    });
+  }
+});
+
+// Documentation
 server.register(fastifySwagger, swaggerConfig);
 server.register(fastifySwaggerUi, swaggerUiConfig);
 
-// Register OAuth2
+// OAuth2
 server.register(fastifyOauth2, {
   name: 'googleOAuth2',
   credentials: {
@@ -33,68 +59,31 @@ server.register(fastifyOauth2, {
   callbackUri: 'http://localhost:3000/api/auth/google/callback',
 });
 
-server.get('/api/auth/google/callback', async function (req, reply) {
-  const token = await this.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(
-    req
-  );
-
-  const googleUser = await fetch(
-    'https://www.googleapis.com/oauth2/v2/userinfo',
-    {
-      headers: { Authorization: `Bearer ${token.access_token}` },
-    }
-  ).then((res) => res.json());
-
-  const { email, name } = googleUser;
-
-  const user = await app.sqlite.get('SELECT * FROM users WHERE email = ?', [
-    email,
-  ]);
-
-  if (!user) {
-    const uuid = app.uuid();
-    const timeStamp = Date.now();
-
-    await app.sqlite.run(
-      'INSERT INTO users (id, fullName, email, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)',
-      [uuid, name, email, timeStamp, timeStamp]
-    );
-  }
-
-  const jwt = app.jwt.sign({ userId: user.id, email: user.email });
-
-  reply.send({ success: true, user: googleUser });
-});
-
-server.listen({ port: 3000 }, (err, address) => {
-  if (err) throw err;
-  console.log(`Server running at ${address}`);
-});
-
-// Database
-server.register(sqlite);
-server.register(uuid);
-
-server.setErrorHandler((err, req, res) => {
-  if (err instanceof Fastify.errorCodes.FST_ERR_BAD_STATUS_CODE) {
-    this.log.error(err);
-    res.status(500).send({ message: 'internal server error' });
-  } else {
-    res.send(err);
-  }
-});
-
-server.register(homesRoutes);
+// Register routes
+server.register(authRoutes);
 server.register(usersRoutes);
+server.register(homesRoutes);
 server.register(ledgersRoutes);
 server.register(categoriesRoutes);
+
+server.setErrorHandler((err, req, reply) => {
+  if (err instanceof Fastify.errorCodes.FST_ERR_BAD_STATUS_CODE) {
+    server.log.error(err);
+    reply.status(500).send({ message: 'Internal server error' });
+  } else {
+    reply.send(err);
+  }
+});
 
 const start = async () => {
   try {
     await server.listen({ host: 'localhost', port: 3000 });
+    console.log(`Server running at http://localhost:3000`);
+    console.log(`Documentation available at http://localhost:3000/`);
   } catch (err) {
     server.log.error(err);
     process.exit(1);
   }
 };
+
 export default start;
